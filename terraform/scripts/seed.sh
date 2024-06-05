@@ -35,6 +35,9 @@ else
   echo "Successfully created rosa cluster-admin user."
 fi
 echo $login
+pw=`echo $login | awk '{print $7}'`
+url=`echo $login | awk '{print $3}'`
+domain=`echo $login | awk -F\. '{print $2"."$3"."$4"."$5"."$6}'|awk -F\: '{print $1}'`
 # Update secret value
 aws secretsmanager put-secret-value --secret-id $secret --secret-string "{\"user\":\"cluster-admin\",\"password\":\"$pw\",\"url\":\"$url\"}"
 if [ $? -ne 0 ]
@@ -64,10 +67,10 @@ do
 done
 sleep 120
 oc project openshift-operators
-helm repo add helm_repo "https://AB-POC.github.io/helm-charts/"
+helm repo add helm_repo "https://pf-poc.github.io/helm-repository/"
 helm repo update
 echo "installing cluster-seed"
-helm install operators helm_repo/$helm_chart --version $helm_chart_version --insecure-skip-tls-verify --set gitops_path=$gitops_path|grep -i err
+helm install operators helm_repo/$helm_chart --version $helm_chart_version --insecure-skip-tls-verify --set gitPath=$gitPath|grep -i err
 if [ $? -eq 0 ]
   then
     echo "Helm failed to install initial cluster-seed helm operators successfully attemp $i - exiting"
