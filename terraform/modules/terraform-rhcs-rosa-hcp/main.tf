@@ -164,6 +164,54 @@ module "rhcs_hcp_machine_pool" {
 }
 
 
+###########################################
+# Multiple Identity Providers Generic block
+###########################################
+
+module "rhcs_identity_provider" {
+  source   = "./modules/idp"
+  for_each = var.identity_providers
+
+  cluster_id                            = module.rosa_cluster_hcp.cluster_id
+  name                                  = each.value.name
+  idp_type                              = each.value.idp_type
+  mapping_method                        = try(each.value.mapping_method, null)
+  github_idp_client_id                  = try(each.value.github_idp_client_id, null)
+  github_idp_client_secret              = try(each.value.github_idp_client_secret, null)
+  github_idp_ca                         = try(each.value.github_idp_ca, null)
+  github_idp_hostname                   = try(each.value.github_idp_hostname, null)
+  github_idp_organizations              = try(jsondecode(each.value.github_idp_organizations), null)
+  github_idp_teams                      = try(jsondecode(each.value.github_idp_teams), null)
+  gitlab_idp_client_id                  = try(each.value.gitlab_idp_client_id, null)
+  gitlab_idp_client_secret              = try(each.value.gitlab_idp_client_secret, null)
+  gitlab_idp_url                        = try(each.value.gitlab_idp_url, null)
+  gitlab_idp_ca                         = try(each.value.gitlab_idp_ca, null)
+  google_idp_client_id                  = try(each.value.google_idp_client_id, null)
+  google_idp_client_secret              = try(each.value.google_idp_client_secret, null)
+  google_idp_hosted_domain              = try(each.value.google_idp_hosted_domain, null)
+  htpasswd_idp_users                    = try(jsondecode(each.value.htpasswd_idp_users), null)
+  ldap_idp_bind_dn                      = try(each.value.ldap_idp_bind_dn, null)
+  ldap_idp_bind_password                = try(each.value.ldap_idp_bind_password, null)
+  ldap_idp_ca                           = try(each.value.ldap_idp_ca, null)
+  ldap_idp_insecure                     = try(each.value.ldap_idp_insecure, null)
+  ldap_idp_url                          = try(each.value.ldap_idp_url, null)
+  ldap_idp_emails                       = try(jsondecode(each.value.ldap_idp_emails), null)
+  ldap_idp_ids                          = try(jsondecode(each.value.ldap_idp_ids), null)
+  ldap_idp_names                        = try(jsondecode(each.value.ldap_idp_names), null)
+  ldap_idp_preferred_usernames          = try(jsondecode(each.value.ldap_idp_preferred_usernames), null)
+  openid_idp_ca                         = try(each.value.openid_idp_ca, null)
+  openid_idp_claims_email               = try(jsondecode(each.value.openid_idp_claims_email), null)
+  openid_idp_claims_groups              = try(jsondecode(each.value.openid_idp_claims_groups), null)
+  openid_idp_claims_name                = try(jsondecode(each.value.openid_idp_claims_name), null)
+  openid_idp_claims_preferred_username  = try(jsondecode(each.value.openid_idp_claims_preferred_username), null)
+  openid_idp_client_id                  = try(each.value.openid_idp_client_id, null)
+  openid_idp_client_secret              = try(each.value.openid_idp_client_secret, null)
+  openid_idp_extra_scopes               = try(jsondecode(each.value.openid_idp_extra_scopes), null)
+  openid_idp_extra_authorize_parameters = try(jsondecode(each.value.openid_idp_extra_authorize_parameters), null)
+  openid_idp_issuer                     = try(each.value.openid_idp_issuer, null)
+}
+
+
 data "aws_caller_identity" "current" {}
 
 

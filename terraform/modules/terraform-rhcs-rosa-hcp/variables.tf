@@ -334,6 +334,12 @@ variable "machine_pools" {
   description = "Provides a generic approach to add multiple machine pools after the creation of the cluster. This variable allows users to specify configurations for multiple machine pools in a flexible and customizable manner, facilitating the management of resources post-cluster deployment. For additional details regarding the variables utilized, please refer to the [machine-pool sub-module](./modules/machine-pool). For non-primitive variables (such as maps, lists, and objects), please supply the JSON-encoded string."
 }
 
+variable "identity_providers" {
+  type        = map(any)
+  default     = {}
+  description = "identitiy provider array"
+}
+
 variable "hack_subnet_id_machine_pool" {
   type = string
   description = "hack so i dont need to code in values file a subnet id every time when it always changes."

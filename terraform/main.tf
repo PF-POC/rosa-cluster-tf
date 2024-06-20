@@ -42,6 +42,7 @@ module "rhcs_cluster_rosa_hcp" {
   operator_role_prefix               = var.operator_role_prefix
   oidc_endpoint_url                  = var.oidc_endpoint_url
   machine_pools                      = var.machine_pools
+  identity_providers                 = var.identity_providers
 }
 
 ############################
