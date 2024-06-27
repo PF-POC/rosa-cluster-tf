@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_kms_key" "ebs" {
   description             = "KMS key for ebs volumes for cluster ${var.cluster_name}"
   deletion_window_in_days = 10

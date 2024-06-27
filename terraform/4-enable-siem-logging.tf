@@ -65,20 +65,6 @@ output "rosa_cloudwatch_siem_role_iam_arn" {
   description = "Cloudwatch arn to add to helm chart deployment."
 }
 
-# resource "null_resource" "enable-siem-logging" {
-#   count = var.enable-siem-logging == "true" ? 1 : 0
-
-#   provisioner "local-exec" {
-#     command = "scripts/enable-siem-logging.sh > enable-siem-logging.log 2>&1"
-#     environment = {
-#       secret        = "${var.cluster_name}-credentials"
-#       cluster       = var.cluster_name
-#       cluster_id    = module.rhcs_cluster_rosa_hcp.rosa_cluster_hcp_cluster_id
-#       siem_role_arn = local.cloudwatch_siem_role_iam_arn
-#     }
-#   }
-# }
-
 resource "shell_script" "enable_siem_logging" {
   count = var.enable-siem-logging == "true" ? 1 : 0
 

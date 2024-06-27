@@ -4,7 +4,7 @@ resource "null_resource" "expose_api" {
     command = "scripts/expose_api.sh > expose_api.log 2>&1"
     environment = {
       secret             = "${var.cluster_name}-credentials"
-      token              = var.RHCS_TOKEN
+      token              = var.token
       cluster            = var.cluster_name
       cluster_id         = module.cluster_id
     }
