@@ -3,7 +3,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_policy" "rosa_efs_csi_policy_iam" {
-  count       = var.efs ? 1 : 0
+  count       = var.enable-efs ? 1 : 0
   name        = "${var.cluster_name}-rosa-efs-csi"
   path        = "/"
   description = "AWS EFS CSI Driver Policy"
@@ -51,7 +51,7 @@ resource "aws_iam_policy" "rosa_efs_csi_policy_iam" {
 }
 
 resource "aws_iam_role" "rosa_efs_csi_role_iam" {
-  count = var.efs ? 1 : 0
+  count = var.enable-efs ? 1 : 0
   name  = "${var.cluster_name}-rosa-efs-csi-role-iam"
 
   assume_role_policy = jsonencode({
@@ -77,13 +77,13 @@ resource "aws_iam_role" "rosa_efs_csi_role_iam" {
 }
 
 resource "aws_iam_role_policy_attachment" "rosa_efs_csi_role_iam_attachment" {
-  count      = var.efs ? 1 : 0
+  count      = var.enable-efs ? 1 : 0
   role       = aws_iam_role.rosa_efs_csi_role_iam[0].name
   policy_arn = aws_iam_policy.rosa_efs_csi_policy_iam[0].arn
 }
 
 resource "aws_efs_file_system" "rosa_efs" {
-  count          = var.efs ? 1 : 0
+  count          = var.enable-efs ? 1 : 0
   creation_token = "efs-token-1"
   encrypted      = true
   tags = {
@@ -91,27 +91,36 @@ resource "aws_efs_file_system" "rosa_efs" {
   }
 }
 
-resource "aws_efs_mount_target" "efs_mount_worker_0" {
-  for_each = var.efs_mount_targets
-
-  file_system_id  = try(each.value.aws_efs_file_system.rosa_efs_id, null)
-  subnet_id       = try(each.value.subnet_id, null)
-  security_groups = try(each.value.ec2_security_group_id, null)
-  depends_on = [
-    module.rhcs_cluster_rosa_hcp
-  ]
-}
-
-resource "null_resource" "efs" {
-  for_each = var.efs_mount_targets
-  provisioner "local-exec" {
-    command = "touch efs.log; scripts/efs.sh >> efs.log 2>&1"
-    environment = {
-      cluster = var.cluster_name
-    }
+data "aws_instances" "selected" {
+  instance_tags = {
+    cluster-name = var.cluster_name
   }
+}
+
+data "aws_security_groups" "selected" {
+  filter {
+    name   = "tag:cluster-name"
+    values = ["${var.cluster_name}"]
+  }
+}
+# # update the default sec group for the default machine pool nodes using a data lookup
+resource "aws_vpc_security_group_ingress_rule" "expose_api_sg" {
+  for_each = var.efs_mount_targets
+
+  security_group_id = data.aws_security_groups.selected.id
+  cidr_ipv4         = try(each.value.subnet_cidr, null)
+  from_port         = 2049
+  ip_protocol       = "tcp"
+  to_port           = 2049
+}
+
+# #create a mount target i each subnet
+resource "aws_efs_mount_target" "efs_mount_worker" {
+  for_each = var.efs_mount_targets
+
+  file_system_id = aws_efs_file_system.rosa_efs[0].id
+  subnet_id      = try(each.value.subnet_id, null)
   depends_on = [
     module.rhcs_cluster_rosa_hcp
   ]
 }
-

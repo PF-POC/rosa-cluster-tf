@@ -1,0 +1,19 @@
+#!/bin/bash
+
+exec 2>&1 1>expose-api.log
+
+date=`date`
+echo "###############################################"
+echo "######## $date #########"
+echo "###############################################"
+
+rosa login -t ${token}
+
+if [[ "enable" == true ]]
+  then
+    read -r VPCE_ID VPC_ID <<< $(aws ec2 describe-vpc-endpoints --filters "Name=tag:api.openshift.com/id,Values=$(rosa describe cluster -c ${cluster} -o yaml | grep '^id: ' | cut -d' ' -f2)" --query 'VpcEndpoints[].[VpcEndpointId,VpcId]' --output text)
+    aws ec2 modify-vpc-endpoint --vpc-endpoint-id $VPCE_ID --add-security-group-ids $SG_ID
+else
+  read -r VPCE_ID VPC_ID <<< $(aws ec2 describe-vpc-endpoints --filters "Name=tag:api.openshift.com/id,Values=$(rosa describe cluster -c ${cluster} -o yaml | grep '^id: ' | cut -d' ' -f2)" --query 'VpcEndpoints[].[VpcEndpointId,VpcId]' --output text)
+  aws ec2 modify-vpc-endpoint --vpc-endpoint-id $VPCE_ID --remove-security-group-ids $SG_ID
+fi

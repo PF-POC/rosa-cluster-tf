@@ -8,7 +8,7 @@
 include .env
 export $(shell sed '/^\#/d; s/=.*//' .env)
 TF_VAR_AWS_DEFAULT_REGION := $(shell aws configure get region)
-TF_VAR_RHCS_TOKEN=$RHCS_TOKEN
+TF_VAR_token="$(RHCS_TOKEN)"
 DATE=$(shell date)
 ######################
 # State variables. Set your state variables for your bucket and which cluster you are deploying to.

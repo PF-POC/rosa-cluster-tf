@@ -8,6 +8,12 @@ variable "RHCS_TOKEN" {
   default   = ""
 }
 
+variable "token" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+
 variable "helm_token" {
   type      = string
   sensitive = true
@@ -339,9 +345,9 @@ variable "seed" {
   }
 }
 
-variable "efs" {
+variable "enable-efs" {
   type        = bool
-  description = "build an EFS file system."
+  description = "Build an EFS file system and roles."
   default     = false
 }
 
@@ -356,4 +362,34 @@ variable "hack_subnet_id_machine_pool" {
   type        = string
   description = "hack so i dont need to code in values file a subnet id every time when it always changes."
   default     = ""
+}
+
+variable "enable-ipsec" {
+  type        = string
+  description = "enable tunneling between pod to pod accross nodes."
+  default     = false
+}
+
+variable "expose_api" {
+  type        = string
+  description = "exposes the VPC endpoint and hence Kube API outside the VPC using a sec group"
+  default     = false
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "exposes the VPC endpoint and hence Kube API outside the VPC using a sec group"
+  default     = ""
+}
+
+variable "enable-app-logging" {
+  type        = string
+  description = "enable app log forwarding to cloudwatch and on to splunk"
+  default     = true
+}
+
+variable "enable-siem-logging" {
+  type        = string
+  description = "enable siem log forwarding to cloudwatch and on to splunk"
+  default     = false
 }

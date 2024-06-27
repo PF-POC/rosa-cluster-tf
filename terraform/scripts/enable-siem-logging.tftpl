@@ -1,0 +1,16 @@
+#!/bin/bash
+
+exec 2>&1 1>enable-siem-logging.log
+
+date=`date`
+echo "###############################################"
+echo "######## $date #########"
+echo "###############################################"
+rosa login -t ${token}
+
+if [[ "${enable}" == true ]]
+  then
+    rosa edit cluster -c ${cluster} --audit-log-arn "${siem_role_arn}" --yes
+else
+  rosa edit cluster -c ${cluster} --audit-log-arn "" --yes
+fi

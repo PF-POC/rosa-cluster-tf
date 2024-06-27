@@ -1,3 +1,13 @@
+resource "aws_kms_key" "ebs" {
+  description             = "KMS key for ebs volumes for cluster ${var.cluster_name}"
+  deletion_window_in_days = 10
+}
+
+resource "aws_kms_key" "etcd" {
+  description             = "KMS key for etcd encryption for cluster ${var.cluster_name}"
+  deletion_window_in_days = 10
+}
+
 module "rhcs_cluster_rosa_hcp" {
   source                             = "./modules/terraform-rhcs-rosa-hcp"
   cluster_name                       = var.cluster_name
@@ -5,8 +15,8 @@ module "rhcs_cluster_rosa_hcp" {
   oidc_config_id                     = var.oidc_config_id
   aws_subnet_ids                     = concat(module.vpc.public_subnets, module.vpc.private_subnets)
   hack_subnet_id_machine_pool        = tolist(module.vpc.private_subnets)[0]
-  kms_key_arn                        = var.kms_key_arn
-  etcd_kms_key_arn                   = var.etcd_kms_key_arn
+  kms_key_arn                        = var.kms_key_arn      #resource.aws_kms_key.ebs.arn
+  etcd_kms_key_arn                   = var.etcd_kms_key_arn #resource.aws_kms_key.etcd.arn
   private                            = var.private
   machine_cidr                       = var.machine_cidr
   service_cidr                       = var.service_cidr
