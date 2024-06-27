@@ -1,8 +1,8 @@
 # https://docs.openshift.com/rosa/cloud_experts_tutorials/cloud-experts-rosa-cloudwatch-sts.html
 
-#data "aws_caller_identity" "current" {}
-
 resource "aws_iam_policy" "rosa_cloudwatch_policy_iam" {
+
+
   name        = "${var.cluster_name}-rosa-cloudwatch"
   path        = "/"
   description = "RosaCloudWatch"

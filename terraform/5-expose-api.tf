@@ -1,16 +1,3 @@
-resource "null_resource" "expose_api" {
-  count = var.expose_api == "true" ? 1 : 0
-  provisioner "local-exec" {
-    command = "scripts/expose_api.sh > expose_api.log 2>&1"
-    environment = {
-      secret             = "${var.cluster_name}-credentials"
-      token              = var.token
-      cluster            = var.cluster_name
-      cluster_id         = module.cluster_id
-    }
-  }
-}
-
 resource "aws_security_group" "expose_api_sg" {
   count = var.expose_api == "true" ? 1 : 0
 
@@ -41,12 +28,14 @@ resource "shell_script" "expose_api_sg" {
       "./scripts/expose-api.tftpl",
       {
         sg_id   = aws_security_group.expose_api_sg[0].id
+        cluster = var.cluster_name
         enable  = true
     })
     delete = templatefile(
       "./scripts/expose-api.tftpl",
       {
         sg_id   = aws_security_group.expose_api_sg[0].id
+        cluster = var.cluster_name
         enable  = false
     })
   }

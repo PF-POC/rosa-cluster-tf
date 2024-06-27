@@ -1,7 +1,5 @@
 # https://cloud.redhat.com/experts/rosa/aws-efs/
 
-data "aws_caller_identity" "current" {}
-
 resource "aws_iam_policy" "rosa_efs_csi_policy_iam" {
   count       = var.enable-efs ? 1 : 0
   name        = "${var.cluster_name}-rosa-efs-csi"
@@ -104,7 +102,7 @@ data "aws_security_groups" "selected" {
   }
 }
 # # update the default sec group for the default machine pool nodes using a data lookup
-resource "aws_vpc_security_group_ingress_rule" "expose_api_sg" {
+resource "aws_vpc_security_group_ingress_rule" "enable_efs" {
   for_each = var.efs_mount_targets
 
   security_group_id = data.aws_security_groups.selected.id

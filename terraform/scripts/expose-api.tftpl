@@ -7,8 +7,6 @@ echo "###############################################"
 echo "######## $date #########"
 echo "###############################################"
 
-rosa login -t ${token}
-
 if [[ "enable" == true ]]
   then
     read -r VPCE_ID VPC_ID <<< $(aws ec2 describe-vpc-endpoints --filters "Name=tag:api.openshift.com/id,Values=$(rosa describe cluster -c ${cluster} -o yaml | grep '^id: ' | cut -d' ' -f2)" --query 'VpcEndpoints[].[VpcEndpointId,VpcId]' --output text)
