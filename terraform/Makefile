@@ -46,10 +46,6 @@ plan: format validate
 .PHONY: plan
 
 apply:
-	rm output.log
-	echo "#########################################" >> output.log 2>&1
-	echo "# TF START $(DATE)" >> output.log 2>&1
-	echo "#########################################" >> output.log 2>&1
 	terraform apply .terraform-plan
 .PHONY: apply
 

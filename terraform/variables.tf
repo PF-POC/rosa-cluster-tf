@@ -378,7 +378,7 @@ variable "expose_api" {
 
 variable "vpc_id" {
   type        = string
-  description = "exposes the VPC endpoint and hence Kube API outside the VPC using a sec group"
+  description = "required for sec group created by expose api."
   default     = ""
 }
 

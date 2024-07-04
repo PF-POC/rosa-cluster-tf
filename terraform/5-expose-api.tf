@@ -39,7 +39,7 @@ resource "shell_script" "expose_api_sg" {
         enable  = false
     })
   }
-  environment = {}
+  environment           = {}
   sensitive_environment = {}
   depends_on = [
     shell_script.cluster_seed

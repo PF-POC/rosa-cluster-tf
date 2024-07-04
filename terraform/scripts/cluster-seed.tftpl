@@ -40,12 +40,12 @@ then
 else
   echo "Successfully created rosa cluster-admin user."
 fi
-#login="oc login https://api.rosa-pub-1.8rzd.p3.openshiftapps.com:443 --username cluster-admin --password kEQiN-tNTdv-hfGtX-eUvHg"
+# login=`oc login https://api.rosa-pub-1.0r8r.p3.openshiftapps.com:443 --username cluster-admin --password rRmhR-uUTY8-aiWFj-j6Jhe`
 echo $login
 pw=`echo $login | awk '{print $7}'`
 url=`echo $login | awk '{print $3}'`
-#domain=`echo $login | awk -F\. '{print $2"."$3"."$4"."$5"."$6}'|awk -F\: '{print $1}'`
-# Update secret value
+domain=`echo $login | awk -F\. '{print $2"."$3"."$4"."$5"."$6}'|awk -F\: '{print $1}'`
+Update secret value
 aws secretsmanager put-secret-value --secret-id ${secret} --secret-string "{\"user\":\"cluster-admin\",\"password\":\"$pw\",\"url\":\"$url\"}"
 if [ $? -ne 0 ]
 then
@@ -63,14 +63,15 @@ do
     then
       break
   fi
+  echo "result = $result"
   ((i++))
-  if [ "$i" == '2' ]
+  if [ "$i" == '15' ]
     then
       echo "Number $i!"
       exit 1
   fi
-  echo "cluster login not ready sleeping 30"
-  sleep 30
+  echo "cluster login not ready sleeping 15"
+  sleep 15
 done
 sleep 120
 oc project openshift-operators
