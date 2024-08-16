@@ -40,7 +40,7 @@ resource "aws_iam_role" "rosa_cloudwatch_role_iam" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "*.cloudfront.net/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = "system:serviceaccount:openshift-logging:logcollector"
+            "${local.oidc_endpoint_url}/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = "system:serviceaccount:openshift-logging:logcollector"
           }
         }
       }

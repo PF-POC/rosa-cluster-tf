@@ -32,7 +32,7 @@ resource "aws_iam_role" "rosa_ecr_access_role_iam" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "*.cloudfront.net/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = "system:serviceaccount:ecr-secret-operator:ecr-secret-operator-controller-manager"
+            "${local.oidc_endpoint_url}/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = "system:serviceaccount:ecr-secret-operator:ecr-secret-operator-controller-manager"
           }
         }
       }

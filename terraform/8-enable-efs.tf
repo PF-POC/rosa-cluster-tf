@@ -63,7 +63,7 @@ resource "aws_iam_role" "rosa_efs_csi_role_iam" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "*.cloudfront.net/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = [
+            "${local.oidc_endpoint_url}/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = [
               "system:serviceaccount:openshift-cluster-csi-drivers:aws-efs-csi-driver-operator",
               "system:serviceaccount:openshift-cluster-csi-drivers:aws-efs-csi-driver-controller-sa"
             ]
