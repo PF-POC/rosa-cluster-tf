@@ -40,7 +40,7 @@ resource "aws_iam_role" "rosa_cloudwatch_siem_role_iam" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/*.cloudfront.net/${module.rhcs_cluster_rosa_hcp.oidc_config_id}"
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_endpoint_url}/${module.rhcs_cluster_rosa_hcp.oidc_config_id}"
         }
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {

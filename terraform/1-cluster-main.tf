@@ -5,12 +5,6 @@ locals {
   oidc_endpoint_url       = local.split_oidc_endpoint_url[0]
 }
 
-output "oidc_url" {
-  value       = local.oidc_endpoint_url
-  description = "Cloudwatch arn to add to helm chart deployment."
-}
-
-
 resource "aws_kms_key" "ebs" {
   description             = "KMS key for ebs volumes for cluster ${var.cluster_name}"
   deletion_window_in_days = 10
