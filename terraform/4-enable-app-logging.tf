@@ -35,12 +35,12 @@ resource "aws_iam_role" "rosa_cloudwatch_role_iam" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_endpoint_url}/${module.rhcs_cluster_rosa_hcp.oidc_config_id}"
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${module.rhcs_cluster_rosa_hcp.oidc_endpoint_url}"
         }
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "${local.oidc_endpoint_url}/${module.rhcs_cluster_rosa_hcp.oidc_config_id}:sub" = "system:serviceaccount:openshift-logging:logcollector"
+            "${module.rhcs_cluster_rosa_hcp.oidc_endpoint_url}:sub" = "system:serviceaccount:openshift-logging:logcollector"
           }
         }
       }
