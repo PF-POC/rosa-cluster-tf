@@ -393,3 +393,9 @@ variable "enable-siem-logging" {
   description = "enable siem log forwarding to cloudwatch and on to splunk"
   default     = false
 }
+
+variable "ingress" {
+  type        = any
+  default     = {}
+  description = "block of ingress controlers to create"
+}

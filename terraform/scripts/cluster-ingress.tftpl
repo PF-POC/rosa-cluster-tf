@@ -1,0 +1,139 @@
+#!/bin/bash
+
+exec 2>&1 1>cluster-ingress-${subDomain}.log
+date=`date`
+echo "###############################################"
+echo "######## $date #########"
+echo "###############################################"
+
+#retrieve secret value
+sleep 20
+url=`aws secretsmanager get-secret-value  --secret-id ${secret} --query SecretString --output text|jq -r ."url"|xargs`
+pw=`aws secretsmanager get-secret-value  --secret-id ${secret} --query SecretString --output text|jq -r ."password"|xargs`
+user=`aws secretsmanager get-secret-value  --secret-id ${secret} --query SecretString --output text|jq -r ."user"|xargs`
+echo "$url"
+echo "$pw"
+echo "$user"
+if [ $? -ne 0 ]
+then
+  echo "Failed to get AWS secret."
+  exit 1
+else
+  echo "Retrieved aws secret"
+fi
+# log into cluster
+i=0
+login="oc login $url --username $user --password $pw"
+while [ true ]
+do
+  $login
+  if [ $? -eq 0 ]
+    then
+      break
+  fi
+  ((i++))
+  if [[ "$i" == '5' ]]
+    then
+      echo "Number $i!"
+      exit 1
+  fi
+  echo "cluster login not ready sleeping 30"
+  sleep 30
+done
+
+oc project openshift-ingress-operator
+helm repo add helm_repo "https://pf-poc.github.io/helm-repository/"
+helm repo update
+if [[ "${enable}" == true ]]
+  then
+    echo "installing ingress and setting up dns record"
+    helm install ingress-${subDomain} helm_repo/${helm_chart} --version ${helm_chart_version} --insecure-skip-tls-verify --set baseDomain=${baseDomain} --set ingressSubdomain=${subDomain}|grep -i err
+    if [ $? -eq 0 ]
+      then
+      echo "Helm failed to install initial cluster-ingress helm operators successfully attemp $i - exiting"
+      exit 1
+    fi
+    echo "Helm successfully installed ingress chart."
+    # now lets retrieve the address of the load balancer.
+
+    while [ true ]
+    do
+      address=`oc get svc -n openshift-ingress|grep -i router-${subDomain} |awk '{print $4}'`
+      if [[ $address =~ "amazonaws.com" ]]
+        then
+        echo "result = Address is $address"
+          break
+      fi
+      ((i++))
+      if [ "$i" == '2' ]
+        then
+          echo "Number $i!"
+          exit 1
+      fi
+      echo "Address not available yet for load balancer."
+      sleep 30
+    done
+cat <<EOF >record-${subDomain}.json
+{
+  "Comment": "CREATE/DELETE/UPSERT a record ",
+  "Changes": [{
+  "Action": "CREATE",
+    "ResourceRecordSet": {
+        "Name": "*.${subDomain}.${baseDomain}",
+        "Type": "CNAME",
+        "TTL": 300,
+      "ResourceRecords": [{ "Value": "$address"}]
+    }
+  }]
+}
+EOF
+    echo "running aws route53 change-resource-record-sets --hosted-zone-id ${hosted-zone-id}  --change-batch file://record-${subDomain}.json"
+    aws route53 change-resource-record-sets --hosted-zone-id ${hosted-zone-id}  --change-batch file://record-${subDomain}.json
+    cat record-${subDomain}.json
+else
+    echo "removing ingress DNS record"
+    while [ true ]
+    do
+      address=`oc get svc -n openshift-ingress|grep -i router-${subDomain} |awk '{print $4}'`
+      if [[ $address =~ "amazonaws.com" ]]
+        then
+        echo "result = Cluster is $address"
+          break
+      fi
+      ((i++))
+      if [ "$i" == '2' ]
+        then
+          echo "Number $i!"
+          exit 1
+      fi
+      echo "Address not available yet for load balancer."
+      sleep 30
+    done
+
+cat <<EOF >record-${subDomain}.json
+{
+  "Comment": "CREATE/DELETE/UPSERT a record ",
+  "Changes": [{
+  "Action": "DELETE",
+    "ResourceRecordSet": {
+        "Name": "*.${subDomain}.${baseDomain}",
+        "Type": "CNAME",
+        "TTL": 300,
+      "ResourceRecords": [{ "Value": "$address"}]
+    }
+  }]
+}
+EOF
+    aws route53 change-resource-record-sets --hosted-zone-id ${hosted-zone-id} -change-batch file://record-${subDomain}.json
+    echo "running aws route53 change-resource-record-sets --hosted-zone-id ${hosted-zone-id}  --change-batch file://record-${subDomain}.json"
+    cat record-${subDomain}.json
+    helm uninstall ingress-${subDomain}
+    oc delete ingressController router-${subDomain}
+fi
+sleep 120
+date=`date`
+echo "#########################################"
+echo "END $date"
+echo "#########################################"
+
+

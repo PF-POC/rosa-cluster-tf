@@ -63,7 +63,7 @@ variable "subnet_id" {
 #   description = "Configures autoscaling for the pool."
 # }
 variable "autoscaling" {
-  type = map(any)
+  type = any
   default = {
     enabled = false
   }

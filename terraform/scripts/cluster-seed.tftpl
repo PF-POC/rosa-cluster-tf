@@ -31,16 +31,16 @@ do
   echo "cluster not ready sleeping 30"
   sleep 30
 done
-# Create admin user
-login=`rosa create admin --cluster=${cluster}| grep -i oc`
-if [ $? -ne 0 ]
-then
-  echo "Failed to create Rosa cluster-admin user"
-  exit 1
-else
-  echo "Successfully created rosa cluster-admin user."
-fi
-# login=`oc login https://api.rosa-pub-1.0r8r.p3.openshiftapps.com:443 --username cluster-admin --password rRmhR-uUTY8-aiWFj-j6Jhe`
+# # Create admin user
+# login=`rosa create admin --cluster=${cluster}| grep -i oc`
+# if [ $? -ne 0 ]
+# then
+#   echo "Failed to create Rosa cluster-admin user"
+#   exit 1
+# else
+#   echo "Successfully created rosa cluster-admin user."
+# fi
+login="oc login https://api.rosa-pub-1.jzwm.p3.openshiftapps.com:443 --username cluster-admin --password 4IZ2n-3bUQM-iNVAf-Paom"
 echo $login
 pw=`echo $login | awk '{print $7}'`
 url=`echo $login | awk '{print $3}'`
